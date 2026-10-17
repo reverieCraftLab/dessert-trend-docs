@@ -9,6 +9,7 @@
 |---|---|
 | [docs/01-requirements.md](docs/01-requirements.md) | 요구사항 기술서 (목적, 사용자와 시나리오, 기능, 비기능, 데이터) |
 | [docs/decisions.md](docs/decisions.md) | 결정 기록 (정한 것 / 이유 / 다른 선택지) |
+| [docs/conversation-log.md](docs/conversation-log.md) | 대화로 보는 의사결정 과정 (질문 → Claude의 판단 → 결과) |
 
 ## 진행 상태
 
