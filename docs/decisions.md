@@ -169,5 +169,6 @@
 - **이유(트랜잭션)**: (Claude) 조회 전용 서비스에 `@Transactional(readOnly = true)`를 붙인다. 읽기만 한다는 의도가 코드에 남고, Hibernate가 변경 감지용 스냅샷을 만들지 않는다. `open-in-view`를 꺼 두어 서비스가 끝나면 영속성 컨텍스트가 닫히므로 엔티티를 DTO로 바꾸는 일까지 이 안에서 끝낸다.
 - **해석**: (Claude) FR-01의 "1~3개"를 "최대 3개"로 구현했다. 노출 중인 디저트가 3개 이상이면 항상 3개가 나온다. 개수 자체를 무작위로 할지는 GT가 정한다.
 - **확인한 것(로컬 PostgreSQL, 2026-10-21)**: GT가 로컬 도커 DB로 앱을 실행해 확인했다. Flyway가 V1~V3를 모두 성공(`success = true`)으로 실행했고, 이전 테이블은 사라지고 `dessert`와 이력 테이블만 남았으며, `dessert`는 10행이었다. `GET /api/desserts/home`은 디저트 3개를 응답했다. 작업 환경에서는 의존성을 받을 수 없어 컴파일을 확인하지 못했으나, GT의 컴퓨터에서 정상 동작했다.
-- **확인하지 못한 것**: Supabase에서의 실행, 그리고 Spring 접속 계정이 RLS의 영향을 받는지. 코드: [trendcanvas 저장소](https://github.com/reverieCraftLab/trendcanvas)의 `dessert` 패키지.
+- **확인한 것(Supabase, 2026-10-22)**: GT가 로컬에서 앱을 `prd` 프로파일로 실행해 Supabase에 V1~V3를 적용했다. Supabase를 직접 조회해 Flyway 이력 3건이 모두 성공이고, `public`에 `dessert`와 이력 테이블만 있으며, `dessert`는 10행이고 RLS가 켜져 있는 것을 확인했다. Spring이 쓰는 `postgres` 계정은 RLS를 무시하는 속성(`rolbypassrls`)을 가지고 있고, 공개 키 계정(`anon`, `authenticated`)은 무시하지 않는다는 것을 계정 정보로 확인했다. 따라서 RLS를 켜고 정책을 만들지 않아도 Spring은 읽고 쓸 수 있다.
+- **실행 중 만난 문제**: `DB_URL`이 `jdbc:`로 시작하지 않아 시작 단계에서 오류가 났다(접속 전이라 비밀번호 시도는 없었다). 값을 `jdbc:postgresql://호스트:5432/postgres?sslmode=require` 형태로 고쳐 해결했다. 코드: [trendcanvas 저장소](https://github.com/reverieCraftLab/trendcanvas)의 `dessert` 패키지.
 
