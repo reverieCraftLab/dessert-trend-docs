@@ -1,6 +1,6 @@
 # 현재 상태와 다음 할 일
 
-> 새 작업을 시작할 때 이 문서를 먼저 읽는다. 결정과 그 이유는 [decisions.md](./decisions.md), 요구사항은 [01-requirements.md](./01-requirements.md), 대화 기록은 [conversation-log.md](./conversation-log.md)에 있다. 마지막 갱신: 2026-10-22.
+> 새 작업을 시작할 때 이 문서를 먼저 읽는다. 결정과 그 이유는 [decisions.md](./decisions.md), 요구사항은 [01-requirements.md](./01-requirements.md), 대화 기록은 [conversation-log.md](./conversation-log.md)에 있다. 마지막 갱신: 2026-10-22(저녁).
 
 ## 저장소
 
@@ -12,33 +12,18 @@
 
 ## 끝난 것
 
-- 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-16.
+- 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-17.
 - DB(Supabase `trendcanvas`): Flyway V1~V3 적용 완료. `dessert` 테이블과 시작용 디저트 10개, RLS 켜짐.
-- 백엔드: `GET /api/desserts/home`(디저트 3개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색 호출, 응답 그대로 전달). 로컬 실행으로 확인함. 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182).
+- 백엔드: `GET /api/desserts/home`(디저트 5개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색을 10장씩 호출, 검색어 뒤에 ` 디저트`를 붙여 응답을 그대로 전달), CORS(GET만, 허용 주소는 환경 변수). 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182) 이후 변경은 커밋 대기 또는 최신 이력을 본다.
+- 프런트(`trendcanvas-web`): 홈 화면 연결 완료. 디저트 5열, 열마다 10장씩 받아 3장씩 이어서 보여줌(무한 스크롤), 검색창(`Search`, 돋보기), 하단 네이버 출처 한 줄. `next/image`는 쓰지 않고 일반 `<img>`. 로컬에서 데이터 수신을 확인했다. 결정은 [D-17](./decisions.md).
 
-## 다음 할 일: 4단계 프런트 연결
+## 다음 할 일
 
-작업 순서는 아래와 같고, 아직 시작하지 않았다.
-
-1. 백엔드에 CORS 설정 추가(허용 주소는 환경 변수).
-2. 프런트에 API 주소 환경 변수(`NEXT_PUBLIC_API_BASE_URL`)와 새 응답 타입을 만들고 이전 타입을 지운다.
-3. 홈 화면: `/api/desserts/home`으로 디저트 3개를 받아 **디저트별 열 3개**를 그리고, 열마다 `/api/images`를 동시에 따로 호출한다. 열마다 로딩·성공·실패(503 `QUOTA_EXCEEDED`, 502 `UPSTREAM_ERROR`)를 따로 처리한다(NFR-09). 순위 영역은 제거하고 출처(네이버)와 원본 링크를 표시한다.
-4. 스크롤 추가 로드(FR-02): 열 아래에 닿으면 `start`를 올려 다음 이미지를 가져온다.
-5. 정리: `mock.json`과 이전 코드 삭제, 프런트의 `CLAUDE.md` 규칙 수정, 결정 기록 D-17 작성.
-
-### 시작 전에 GT가 정할 것(아직 답하지 않음)
-
-1. 브라우저가 Spring을 부르는 경로. Claude의 제안은 **A: 브라우저 → Spring 직접 호출**(응답 시간 NFR-08에 유리하고 단순함). B는 브라우저 → Next.js → Spring.
-2. `next/image` 대신 일반 `<img>`를 쓸지. Claude의 제안은 일반 `<img>`다. `next/image`는 외부 이미지를 Next 서버가 내려받아 가공·저장하는 기능이라 네이버 약관(7.3③, NFR-05)에 걸릴 수 있다고 판단했다(법률 자문 아님).
-3. 홈 제목 문구. 지금 "이번 주, 사람들이 찾는 디저트"는 랭킹을 암시한다(D-07). 임시 문구로 시작해도 된다.
-
-### 현재 프런트가 새 설계와 충돌하는 부분
-
-- 상단 순위 목록(막대 그래프): 랭킹을 보여주지 않기로 했다(D-07).
-- 모든 디저트를 한 격자에 섞어 표시(라운드 로빈): 섞거나 순서를 바꾸면 안 되고 디저트별 열이어야 한다(FR-01, 특약 1.3).
-- `next/image` 사용: 위의 약관 위험.
-- 하단 "Photos from Unsplash"와 "예시 데이터" 문구: 출처 표기를 네이버로 바꾼다(NFR-05).
-- 기존 디자인(폰트, 색, 매거진 느낌, 세로 격자 스타일)은 살린다.
+1. **확인하지 못한 화면 테스트**: 실패 흐름(백엔드 중지, 키 오류 때 영역별 실패와 자동 재시도 없음), Network 탭에서 `/_next/image` 요청이 없고 썸네일을 브라우저가 `search.pstatic.net`에서 직접 받는지, 모바일 폭, 이미지 선명도. 결과는 D-17에 반영한다.
+2. **두 저장소 커밋·푸시 확인**: `trendcanvas`(CORS, 5개/10장/접미사)와 `trendcanvas-web`(홈 화면, 정리). 커밋 메시지는 `타입: 한 줄 요약` 형태.
+3. **네이버 문의 결정**: 디저트 2장씩 번갈아 보여주는 섞인 배치가 가능한지, 원본 링크를 이미지 클릭으로 대신해도 되는지. 답을 받기 전에는 디저트별로 이어진 열을 유지한다.
+4. **`<img>` 대 `<Image unoptimized>`**: 화면에서 썸네일 선명도를 보고 판단한다(서버가 가공하지 않는 점은 같다).
+5. 키워드 품질 조정: 접미사를 붙여도 뉴스가 섞인다. 문제 되는 키워드는 DB의 `dessert.keyword`를 고쳐 보완한다(예: `한정선 찹쌀떡`).
 
 ## 그 뒤
 
