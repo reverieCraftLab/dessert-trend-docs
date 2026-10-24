@@ -1,6 +1,6 @@
 # 현재 상태와 다음 할 일
 
-> 새 작업을 시작할 때 이 문서를 먼저 읽는다. 결정과 그 이유는 [decisions.md](./decisions.md), 요구사항은 [01-requirements.md](./01-requirements.md), 대화 기록은 [conversation-log.md](./conversation-log.md)에 있다. 마지막 갱신: 2026-10-22(저녁).
+> 새 작업을 시작할 때 이 문서를 먼저 읽는다. 결정과 그 이유는 [decisions.md](./decisions.md), 요구사항은 [01-requirements.md](./01-requirements.md), 대화 기록은 [conversation-log.md](./conversation-log.md)에 있다. 마지막 갱신: 2026-10-24.
 
 ## 저장소
 
@@ -12,7 +12,7 @@
 
 ## 끝난 것
 
-- 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-17.
+- 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-18.
 - DB(Supabase `trendcanvas`): Flyway V1~V3 적용 완료. `dessert` 테이블과 시작용 디저트 10개, RLS 켜짐.
 - 백엔드: `GET /api/desserts/home`(디저트 5개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색을 10장씩 호출, 검색어 뒤에 ` 디저트`를 붙여 응답을 그대로 전달), CORS(GET만, 허용 주소는 환경 변수). 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182), [9789792](https://github.com/reverieCraftLab/trendcanvas/commit/9789792).
 - 프런트(`trendcanvas-web`): 홈 화면 연결 완료([2da5905](https://github.com/reverieCraftLab/trendcanvas-web/commit/2da5905)). 디저트 5열, 열마다 10장씩 받아 3장씩 이어서 보여줌(무한 스크롤), 검색창(`Search`, 돋보기), 하단 네이버 출처 한 줄. `next/image`는 쓰지 않고 일반 `<img>`. 로컬에서 데이터 수신을 확인했다. 결정은 [D-17](./decisions.md).
@@ -33,6 +33,7 @@
 ## 미정·보류 항목
 
 - 행동 기록 원본의 보관 기간과 통계 테이블 기준(D-09), 안내문 문구와 개인정보 처리방침 필요 여부(D-05).
+- 행동 기록 저장소는 PostgreSQL 유지, 시계열 DB는 쓰지 않는다(D-18). 통계 테이블 기준에는 증가 속도와 기기당 중복 제거가 후보로 적혀 있다(미결).
 - 지도 중심 좌표를 지역명으로 바꾸는 방식(Reverse Geocoding, D-06): MVP 화면 이후에 판단.
 - 한도 소진 안내 문구: 사용자를 본 뒤 추가(D-11).
 - 카카오 이미지 검색으로 대체하는 안(D-03): 사용자가 늘어난 뒤.
