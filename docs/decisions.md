@@ -275,3 +275,17 @@
   - nginx 접속 기록에는 방문자 IP가 남는다. 앱은 IP를 저장하지 않는다는 설계(NFR-01 계열)와 어긋나지 않는지 보관 기간과 안내문을 함께 정해야 한다.
   - 메모리 1GB라 앱이 늘면 스왑 사용이 늘고 느려질 수 있다.
 - **남은 과제**: 프런트 배포(주소 `trendcanvas.reveriecraftlab.com`)와 실제 CORS 확인, nginx 접속 기록의 IP 보관 기간, 배포 자동화 여부, Supabase 일시 중지 대응.
+
+
+## D-20. 프런트는 Vercel에 올리고, 백엔드는 프런트 도메인 하나만 허용한다 (2026-10-25)
+
+- **정한 것**:
+  - 프런트(`trendcanvas-web`)는 **Vercel**(무료 Hobby)에 올린다. GitHub `main`에 푸시하면 자동으로 배포된다. 주소는 `https://trendcanvas.reveriecraftlab.com`이고, 가비아에 CNAME을 두고 Vercel 프로젝트에 도메인을 연결했다.
+  - 프런트가 부르는 백엔드 주소는 Vercel의 환경 변수 `NEXT_PUBLIC_API_BASE_URL`(`https://api.trendcanvas.reveriecraftlab.com`)로 준다. 공개 주소라서 Vercel에서 "설정값(Config)"으로 저장했다.
+  - 백엔드의 허용 주소(`CORS_ALLOWED_ORIGINS`)는 **프런트 도메인 하나**(`https://trendcanvas.reveriecraftlab.com`)만 둔다. Vercel이 배포마다 만드는 임시 주소(`...vercel.app`)는 허용하지 않는다.
+- **이유(Vercel)**: (Claude) Next.js를 만든 곳이라 설정이 거의 없고 GitHub 연결로 자동 배포된다. 메모리 1GB인 EC2에 프런트까지 올리면 부족해진다. 이미지는 브라우저가 네이버에서 직접 받고(D-17) `next/image`를 쓰지 않으므로 이미지 트래픽이 Vercel을 거치지 않는다.
+- **이유(허용 주소 하나)**: (Claude) 허용 범위를 최소로 두는 것이 안전하다. 임시 주소는 배포할 때마다 바뀌어 목록을 계속 고쳐야 하고, 주소가 늘수록 허용 범위도 넓어진다. 임시 주소에서 열면 서버가 `403`으로 거절하는 것을 확인했다. 이는 의도한 동작이다.
+- **이유(공개 값에 `NEXT_PUBLIC_`)**: (Claude) 이 접두사가 붙은 값은 브라우저에 그대로 노출된다. 브라우저가 API 주소를 알아야 부를 수 있으므로 노출돼도 괜찮은 값에만 쓴다. 비밀 값(네이버 키, DB 정보)은 서버에만 두고 프런트에는 두지 않는다.
+- **확인한 것**(2026-10-25): 운영 도메인에서 홈 화면이 열리고 디저트 이미지가 나온다. 서버는 `GET` 요청에 `Access-Control-Allow-Origin: https://trendcanvas.reveriecraftlab.com`을 돌려준다. `curl -I`(HEAD)로 확인하면 CORS 헤더가 안 나온다. HEAD는 허용 메서드가 아니기 때문이고, 확인할 때는 `GET`을 써야 한다.
+- **확인하지 않은 것**: 운영 화면의 Network 탭에서 `/_next/image` 요청이 없는지, 썸네일을 브라우저가 `search.pstatic.net`에서 직접 받는지. Vercel 사용량에 이미지 최적화(Transformations) 기록이 있어서 과거 배포의 흔적인지 현재 코드인지 확인이 필요하다(D-17의 확인 항목과 같다). 모바일 폭, EC2에서의 첫 이미지 응답 시간(NFR-08).
+- **감수하는 점**: Vercel 무료 플랜은 개인·비상업 용도로 제한된다. 광고나 수익이 붙는 서비스가 되면 약관을 다시 확인해야 한다.
