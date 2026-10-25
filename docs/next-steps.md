@@ -15,6 +15,7 @@
 - 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-18.
 - 배포(백엔드): 서울 EC2 t3.micro 한 대에 nginx(80·443) → Spring Boot(127.0.0.1:8080), systemd 서비스, 스왑 2GB, Let's Encrypt HTTPS. 주소 `https://api.trendcanvas.reveriecraftlab.com`. `/api/desserts/home`과 `/api/images`가 운영 서버에서 응답하는 것을 확인했다. 결정과 이유는 [D-19](./decisions.md).
 - 배포(프런트): Vercel, `https://trendcanvas.reveriecraftlab.com`. 운영 도메인에서 홈 이미지가 나오는 것과 CORS 통과를 확인했다. 결정은 [D-20](./decisions.md).
+- 검색 노출: Search Console 등록과 색인 요청, 프런트에 메타 태그·robots·sitemap 추가(GT가 커밋 전). 결정은 [D-21](./decisions.md).
 - DB(Supabase `trendcanvas`): Flyway V1~V3 적용 완료. `dessert` 테이블과 시작용 디저트 10개, RLS 켜짐.
 - 백엔드: `GET /api/desserts/home`(디저트 10개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색을 10장씩 호출, 검색어는 키워드 그대로, 응답을 그대로 전달), CORS(GET만, 허용 주소는 환경 변수). 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182), [9789792](https://github.com/reverieCraftLab/trendcanvas/commit/9789792).
 - 프런트(`trendcanvas-web`): 홈 화면 연결 완료([2da5905](https://github.com/reverieCraftLab/trendcanvas-web/commit/2da5905)), 이후 ㄱ자 묶음 화면으로 개편([68b51b6](https://github.com/reverieCraftLab/trendcanvas-web/commit/68b51b6)). 디저트 한 개가 ㄱ자 한 겹, 스크롤하면 묶음을 아래로 이어 붙임(무한 스크롤), 검색창(`Search`, 돋보기), 하단 네이버 출처 한 줄. `next/image`는 쓰지 않고 일반 `<img>`. 로컬에서 데이터 수신을 확인했다. 결정은 [D-17](./decisions.md).
@@ -31,6 +32,8 @@
 - 운영 화면 Network 탭에서 `/_next/image` 요청이 없는지, 썸네일을 브라우저가 `search.pstatic.net`에서 직접 받는지(D-17, D-20). (재부팅 후 자동 시작, 8080 차단, 프런트 도메인의 CORS 통과는 확인했다, D-19·D-20)
 - EC2에서 첫 이미지 응답 시간(NFR-08)과 서버 메모리 사용량.
 - nginx 접속 기록의 IP 보관 기간(개인정보 설계와의 일관성, D-19).
+
+- 메타 태그 코드를 커밋·푸시해 배포한 뒤, 운영 주소의 `/robots.txt`와 `/sitemap.xml`이 열리는지 확인하고 Search Console에 사이트맵을 제출한다(D-21).
 
 ## 그 뒤
 
