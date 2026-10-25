@@ -14,15 +14,15 @@
 
 - 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-18.
 - DB(Supabase `trendcanvas`): Flyway V1~V3 적용 완료. `dessert` 테이블과 시작용 디저트 10개, RLS 켜짐.
-- 백엔드: `GET /api/desserts/home`(디저트 5개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색을 10장씩 호출, 검색어 뒤에 ` 디저트`를 붙여 응답을 그대로 전달), CORS(GET만, 허용 주소는 환경 변수). 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182), [9789792](https://github.com/reverieCraftLab/trendcanvas/commit/9789792).
-- 프런트(`trendcanvas-web`): 홈 화면 연결 완료([2da5905](https://github.com/reverieCraftLab/trendcanvas-web/commit/2da5905)). 디저트 5열, 열마다 10장씩 받아 3장씩 이어서 보여줌(무한 스크롤), 검색창(`Search`, 돋보기), 하단 네이버 출처 한 줄. `next/image`는 쓰지 않고 일반 `<img>`. 로컬에서 데이터 수신을 확인했다. 결정은 [D-17](./decisions.md).
+- 백엔드: `GET /api/desserts/home`(디저트 10개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색을 10장씩 호출, 검색어는 키워드 그대로, 응답을 그대로 전달), CORS(GET만, 허용 주소는 환경 변수). 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182), [9789792](https://github.com/reverieCraftLab/trendcanvas/commit/9789792).
+- 프런트(`trendcanvas-web`): 홈 화면 연결 완료([2da5905](https://github.com/reverieCraftLab/trendcanvas-web/commit/2da5905)), 이후 ㄱ자 묶음 화면으로 개편([68b51b6](https://github.com/reverieCraftLab/trendcanvas-web/commit/68b51b6)). 디저트 한 개가 ㄱ자 한 겹, 스크롤하면 묶음을 아래로 이어 붙임(무한 스크롤), 검색창(`Search`, 돋보기), 하단 네이버 출처 한 줄. `next/image`는 쓰지 않고 일반 `<img>`. 로컬에서 데이터 수신을 확인했다. 결정은 [D-17](./decisions.md).
 
 ## 다음 할 일
 
 1. **확인하지 못한 화면 테스트**: 실패 흐름(백엔드 중지, 키 오류 때 영역별 실패와 자동 재시도 없음), Network 탭에서 `/_next/image` 요청이 없고 썸네일을 브라우저가 `search.pstatic.net`에서 직접 받는지, 모바일 폭, 이미지 선명도. 결과는 D-17에 반영한다.
 2. **네이버 문의 결정**: 디저트 2장씩 번갈아 보여주는 섞인 배치가 가능한지, 원본 링크를 이미지 클릭으로 대신해도 되는지. 답을 받기 전에는 디저트별로 이어진 열을 유지한다.
 3. **`<img>` 대 `<Image unoptimized>`**: 화면에서 썸네일 선명도를 보고 판단한다(서버가 가공하지 않는 점은 같다).
-4. 키워드 품질 조정: 접미사를 붙여도 뉴스가 섞인다. 문제 되는 키워드는 DB의 `dessert.keyword`를 고쳐 보완한다(예: `한정선 찹쌀떡`).
+4. 키워드 품질 조정: 접미사는 비웠다(D-17). 문제 되는 키워드(한정선, 아그작, 크로플, 소금빵, 버터떡, 토라쿠 푸딩)는 후보 검색어를 시험한 뒤 GT가 DB의 `dessert.keyword`를 SQL로 고친다.
 
 ## 그 뒤
 
