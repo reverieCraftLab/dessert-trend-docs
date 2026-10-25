@@ -1,6 +1,6 @@
 # 현재 상태와 다음 할 일
 
-> 새 작업을 시작할 때 이 문서를 먼저 읽는다. 결정과 그 이유는 [decisions.md](./decisions.md), 요구사항은 [01-requirements.md](./01-requirements.md), 대화 기록은 [conversation-log.md](./conversation-log.md)에 있다. 마지막 갱신: 2026-10-24.
+> 새 작업을 시작할 때 이 문서를 먼저 읽는다. 결정과 그 이유는 [decisions.md](./decisions.md), 요구사항은 [01-requirements.md](./01-requirements.md), 대화 기록은 [conversation-log.md](./conversation-log.md)에 있다. 마지막 갱신: 2026-10-25.
 
 ## 저장소
 
@@ -13,6 +13,7 @@
 ## 끝난 것
 
 - 요구사항: FR-01~09, NFR-01~10, 데이터 5.1(`dessert`), 5.2(`search_log`). 결정 D-01~D-18.
+- 배포(백엔드): 서울 EC2 t3.micro 한 대에 nginx(80·443) → Spring Boot(127.0.0.1:8080), systemd 서비스, 스왑 2GB, Let's Encrypt HTTPS. 주소 `https://api.trendcanvas.reveriecraftlab.com`. `/api/desserts/home`과 `/api/images`가 운영 서버에서 응답하는 것을 확인했다. 결정과 이유는 [D-19](./decisions.md).
 - DB(Supabase `trendcanvas`): Flyway V1~V3 적용 완료. `dessert` 테이블과 시작용 디저트 10개, RLS 켜짐.
 - 백엔드: `GET /api/desserts/home`(디저트 10개 무작위, 키워드만), `GET /api/images?keyword=&start=`(네이버 이미지 검색을 10장씩 호출, 검색어는 키워드 그대로, 응답을 그대로 전달), CORS(GET만, 허용 주소는 환경 변수). 코드 [094c182](https://github.com/reverieCraftLab/trendcanvas/commit/094c182), [9789792](https://github.com/reverieCraftLab/trendcanvas/commit/9789792).
 - 프런트(`trendcanvas-web`): 홈 화면 연결 완료([2da5905](https://github.com/reverieCraftLab/trendcanvas-web/commit/2da5905)), 이후 ㄱ자 묶음 화면으로 개편([68b51b6](https://github.com/reverieCraftLab/trendcanvas-web/commit/68b51b6)). 디저트 한 개가 ㄱ자 한 겹, 스크롤하면 묶음을 아래로 이어 붙임(무한 스크롤), 검색창(`Search`, 돋보기), 하단 네이버 출처 한 줄. `next/image`는 쓰지 않고 일반 `<img>`. 로컬에서 데이터 수신을 확인했다. 결정은 [D-17](./decisions.md).
@@ -24,11 +25,17 @@
 3. **`<img>` 대 `<Image unoptimized>`**: 화면에서 썸네일 선명도를 보고 판단한다(서버가 가공하지 않는 점은 같다).
 4. 키워드 품질 조정: 접미사는 비웠다(D-17). 문제 되는 키워드(한정선, 아그작, 크로플, 소금빵, 버터떡, 토라쿠 푸딩)는 후보 검색어를 시험한 뒤 GT가 DB의 `dessert.keyword`를 SQL로 고친다.
 
+## 배포 뒤에 확인할 것
+
+- 서버를 재부팅한 뒤 앱이 자동으로 시작하는지, 8080이 외부에서 닫혀 있는지, 프런트 주소에서 CORS가 통과하는지.
+- EC2에서 첫 이미지 응답 시간(NFR-08)과 서버 메모리 사용량.
+- nginx 접속 기록의 IP 보관 기간(개인정보 설계와의 일관성, D-19).
+
 ## 그 뒤
 
 - 5단계: 지도와 가게 검색(네이버 지도 + 지역 검색, FR-04~06, D-06, D-10, D-11).
 - 6단계: 행동 기록(`search_log`, FR-08, D-09).
-- 배포: EC2 t2.micro, 도메인 `reveriecraftlab.com`의 서브도메인과 HTTPS(NFR-07). 아직 EC2를 만들지 않았다.
+- 프런트 배포: `trendcanvas.reveriecraftlab.com`(가비아 CNAME)에 올리고, 서버의 `CORS_ALLOWED_ORIGINS`와 프런트의 `NEXT_PUBLIC_API_BASE_URL`을 운영 주소로 맞춘다.
 
 ## 미정·보류 항목
 
